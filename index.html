@@ -278,7 +278,7 @@
       <div class="card">
         <div class="content">
           <div class="ring">o</div>
-          <h1>Find Your Table</h1>
+          <h1>Find Your Seat</h1>
           <p class="subtitle">
             Welcome to our wedding celebration.<br />
             Start typing your name to find your table.
@@ -338,6 +338,33 @@
         .trim();
     }
 
+    function levenshteinDistance(a, b) {
+      const rows = a.length + 1;
+      const cols = b.length + 1;
+      const matrix = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+      for (let i = 0; i < rows; i += 1) {
+        matrix[i][0] = i;
+      }
+
+      for (let j = 0; j < cols; j += 1) {
+        matrix[0][j] = j;
+      }
+
+      for (let i = 1; i < rows; i += 1) {
+        for (let j = 1; j < cols; j += 1) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      return matrix[a.length][b.length];
+    }
+
     function getMatchScore(query, guestName) {
       const normalizedGuest = normalizeName(guestName);
 
@@ -348,6 +375,19 @@
 
       const guestWords = normalizedGuest.split(" ");
       const queryWords = query.split(" ").filter(Boolean);
+      const guestJoined = guestWords.join("");
+      const queryJoined = queryWords.join("");
+
+      if (!queryWords.length) return 0;
+
+      const alignedWordPrefixCount = queryWords.filter((queryWord, index) => {
+        const guestWord = guestWords[index];
+        return guestWord && guestWord.startsWith(queryWord);
+      }).length;
+
+      if (alignedWordPrefixCount === queryWords.length) {
+        return 70 + Math.min(9, queryWords.length);
+      }
 
       const allWordsMatchStart =
         queryWords.length > 0 &&
@@ -357,9 +397,27 @@
 
       if (allWordsMatchStart) return 50;
 
+      const alignedWordContainsCount = queryWords.filter((queryWord, index) => {
+        const guestWord = guestWords[index];
+        return guestWord && guestWord.includes(queryWord);
+      }).length;
+
+      if (alignedWordContainsCount === queryWords.length) {
+        return 45 + Math.min(9, queryWords.length);
+      }
+
       const anyWordContains = queryWords.some((queryWord) =>
         guestWords.some((guestWord) => guestWord.includes(queryWord))
       );
+
+      const compactDistance = levenshteinDistance(queryJoined, guestJoined);
+      const maxCompactLength = Math.max(queryJoined.length, guestJoined.length);
+      const compactSimilarity =
+        maxCompactLength > 0 ? 1 - compactDistance / maxCompactLength : 0;
+
+      if (queryWords.length > 1 && compactSimilarity >= 0.7) {
+        return 35 + Math.round(compactSimilarity * 10);
+      }
 
       if (anyWordContains) return 30;
 
@@ -476,9 +534,24 @@
 
       try {
         const matches = findMatches(trimmed);
+        const queryWords = normalizeName(trimmed).split(" ").filter(Boolean);
 
         if (matches.length === 0) {
           renderNoResult();
+          return;
+        }
+
+        if (queryWords.length > 1 && matches[0].score >= 70) {
+          const topMatches = matches.filter(
+            (match) => matches[0].score - match.score <= 5
+          );
+
+          if (topMatches.length === 1) {
+            renderSingle(matches[0]);
+            return;
+          }
+
+          renderMultiple(topMatches);
           return;
         }
 
