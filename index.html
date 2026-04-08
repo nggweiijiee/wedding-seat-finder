@@ -1,92 +1,309 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wedding Seat Finder</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fdfaf6;
-      text-align: center;
-      padding: 40px 20px;
-    }
-    .card {
-      max-width: 420px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
+    * {
       box-sizing: border-box;
     }
-    button {
-      margin-top: 15px;
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.75)),
+        radial-gradient(circle at top, #fff7fb 0%, #fdf7f3 45%, #f8efe8 100%);
+      color: #4a3d34;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
       width: 100%;
-      padding: 14px;
+      max-width: 460px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 12px 36px rgba(120, 90, 60, 0.14);
+      border: 1px solid rgba(179, 139, 89, 0.14);
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      color: #8a6442;
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      margin: 10px 0 22px;
+      color: #7a6a5e;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .search-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 16px;
+      border: 1px solid #e7d9cc;
+      border-radius: 14px;
+      font-size: 16px;
+      outline: none;
+      background: #fffdfb;
+      transition: 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #b38b59;
+      box-shadow: 0 0 0 4px rgba(179, 139, 89, 0.12);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px 16px;
       border: none;
-      border-radius: 10px;
-      background: #b38b59;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #c8a06e, #a87948);
       color: white;
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 18px rgba(179, 139, 89, 0.24);
     }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
     #result {
-      margin-top: 20px;
-      font-size: 18px;
+      margin-top: 22px;
+      text-align: left;
+    }
+
+    .message {
+      background: #fffaf5;
+      border: 1px solid #f0dfcf;
+      border-radius: 16px;
+      padding: 16px;
       line-height: 1.6;
+      color: #5a4a3f;
+    }
+
+    .success {
+      background: #fffaf5;
+      border: 1px solid #ead6c3;
+    }
+
+    .error {
+      background: #fff7f7;
+      border: 1px solid #f1d4d4;
+      color: #8a4f4f;
+    }
+
+    .loading {
+      text-align: center;
+      color: #8a6442;
+    }
+
+    .result-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #8a6442;
+    }
+
+    .result-list {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .result-item {
+      background: #fffdfb;
+      border: 1px solid #efdfd0;
+      border-radius: 14px;
+      padding: 14px 14px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .guest-name {
+      font-weight: 700;
+      color: #5d4636;
+      margin-bottom: 4px;
+    }
+
+    .seat-line {
+      color: #6e5c50;
+      font-size: 15px;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #8a7a6d;
+      text-align: center;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #9a8a7d;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 24px 18px;
+        border-radius: 20px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      input,
+      button {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="card">
+    <div class="icon">💍</div>
     <h1>Find Your Seat</h1>
-    <p>Welcome to our wedding dinner 💍</p>
-    <input type="text" id="guestName" placeholder="Enter your full name" />
-    <button onclick="findSeat()">Find My Seat</button>
+    <p class="subtitle">
+      Welcome to our wedding dinner.<br />
+      Enter your name to check your table arrangement.
+    </p>
+
+    <div class="search-wrap">
+      <input
+        type="text"
+        id="guestName"
+        placeholder="Enter your full name"
+        onkeydown="if(event.key === 'Enter') findSeat()"
+      />
+      <button onclick="findSeat()">Search</button>
+    </div>
+
     <div id="result"></div>
+
+    <div class="footer-note">
+      If you can’t find your name, please check with the reception team.
+    </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbylJLhTHC0RoR0f7v2sNkzbPUwB_qb_yRXwpMjCD41P9zpCPf25GV1wBFLAhUzwtmWx/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxNdUzHxX_1k2iDz84401Nbg3mOf7dFVYC_MEUHuhrxJ5BhNzFS0vqOrjB6rjZlP2K9/exec";
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
 
     async function findSeat() {
       const name = document.getElementById("guestName").value.trim();
       const resultDiv = document.getElementById("result");
 
       if (!name) {
-        resultDiv.innerHTML = "Please enter your name.";
+        resultDiv.innerHTML = `
+          <div class="message error">
+            Please enter your name first.
+          </div>
+        `;
         return;
       }
 
-      resultDiv.innerHTML = "Searching...";
+      resultDiv.innerHTML = `
+        <div class="message loading">
+          Searching for your seat...
+        </div>
+      `;
 
       try {
         const response = await fetch(`${API_URL}?name=${encodeURIComponent(name)}`);
         const data = await response.json();
 
-        if (data.found) {
+        if (!data.found) {
           resultDiv.innerHTML = `
-            <strong>Hi ${data.guestName}!</strong><br>
-            Your table is <strong>Table ${data.table}</strong><br>
-            ${data.seat ? `Seat: ${data.seat}` : ""}
+            <div class="message error">
+              Sorry, we couldn’t find a matching name.<br>
+              Please try a different spelling or check with the reception team.
+            </div>
           `;
-        } else {
-          resultDiv.innerHTML = "Sorry, we couldn’t find your name. Please check with the reception team.";
+          return;
         }
+
+        if (data.multiple && Array.isArray(data.results)) {
+          const items = data.results.map((item, index) => `
+            <li class="result-item">
+              <div class="guest-name">${index + 1}) ${escapeHtml(item.guestName)}</div>
+              <div class="seat-line">
+                Table <strong>${escapeHtml(item.table)}</strong>
+                ${item.seat ? ` · Seat ${escapeHtml(item.seat)}` : ""}
+              </div>
+            </li>
+          `).join("");
+
+          resultDiv.innerHTML = `
+            <div class="message success">
+              <div class="result-title">We found multiple matches</div>
+              <div>Please select the correct name from the list below:</div>
+              <ul class="result-list">${items}</ul>
+              <div class="hint">Try entering more of your full name for a more exact result.</div>
+            </div>
+          `;
+          return;
+        }
+
+        resultDiv.innerHTML = `
+          <div class="message success">
+            <div class="result-title">Welcome, ${escapeHtml(data.guestName)} ✨</div>
+            <div>Your table is <strong>Table ${escapeHtml(data.table)}</strong></div>
+            ${data.seat ? `<div>Your seat: <strong>${escapeHtml(data.seat)}</strong></div>` : ""}
+          </div>
+        `;
       } catch (error) {
-        resultDiv.innerHTML = "Something went wrong. Please try again.";
+        resultDiv.innerHTML = `
+          <div class="message error">
+            Something went wrong while searching.<br>
+            Please try again in a moment.
+          </div>
+        `;
+        console.error(error);
       }
     }
   </script>
