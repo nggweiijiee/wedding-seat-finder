@@ -9,18 +9,53 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100%;
       font-family: "Segoe UI", Arial, sans-serif;
-      background:
-        linear-gradient(rgba(255, 250, 245, 0.7), rgba(255, 250, 245, 0.88)),
-        radial-gradient(circle at top, #fff8fb 0%, #fdf4ee 45%, #f7ebe2 100%);
       color: #5b4636;
+    }
+
+    body {
+      min-height: 100vh;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
+      overflow: hidden;
+      background: #f7efe8;
+    }
+
+    /* Blurred photo background */
+    .bg-image {
+      position: fixed;
+      inset: 0;
+      background-image: url("WJ_JL_Image.jpeg");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      transform: scale(1.08);
+      filter: blur(12px);
+      z-index: -3;
+    }
+
+    /* Soft overlay for readability */
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255, 250, 245, 0.45), rgba(255, 250, 245, 0.72)),
+        rgba(255, 248, 244, 0.22);
+      z-index: -2;
+    }
+
+    /* Optional extra vignette */
+    .bg-vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(120, 90, 60, 0.10) 100%);
+      z-index: -1;
     }
 
     .container {
@@ -29,12 +64,13 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.78);
       border: 1px solid rgba(190, 150, 110, 0.18);
       border-radius: 26px;
       padding: 30px 22px;
-      box-shadow: 0 14px 38px rgba(122, 92, 64, 0.14);
-      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 38px rgba(122, 92, 64, 0.16);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -99,7 +135,7 @@
       border: 1px solid #eadacc;
       border-radius: 14px;
       font-size: 16px;
-      background: #fffdfa;
+      background: rgba(255, 253, 250, 0.94);
       color: #5b4636;
       outline: none;
       transition: all 0.2s ease;
@@ -142,12 +178,12 @@
       padding: 16px;
       line-height: 1.6;
       border: 1px solid #eadacc;
-      background: #fffaf6;
+      background: rgba(255, 250, 246, 0.94);
       color: #5b4636;
     }
 
     .result-box.error {
-      background: #fff8f8;
+      background: rgba(255, 248, 248, 0.95);
       border-color: #eed3d3;
       color: #8a5555;
     }
@@ -172,7 +208,7 @@
 
     .result-item {
       border: 1px solid #efdfd2;
-      background: #fffdfb;
+      background: rgba(255, 253, 251, 0.96);
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 10px;
@@ -216,10 +252,19 @@
       .subtitle {
         font-size: 14px;
       }
+
+      .bg-image {
+        filter: blur(10px);
+        transform: scale(1.1);
+      }
     }
   </style>
 </head>
 <body>
+  <div class="bg-image"></div>
+  <div class="bg-overlay"></div>
+  <div class="bg-vignette"></div>
+
   <div class="container">
     <div class="card">
       <div class="content">
