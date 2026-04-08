@@ -11,31 +11,63 @@
 
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: "Segoe UI", Arial, sans-serif;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.75)),
-        radial-gradient(circle at top, #fff7fb 0%, #fdf7f3 45%, #f8efe8 100%);
-      color: #4a3d34;
-      min-height: 100vh;
+        linear-gradient(rgba(255, 250, 245, 0.7), rgba(255, 250, 245, 0.88)),
+        radial-gradient(circle at top, #fff8fb 0%, #fdf4ee 45%, #f7ebe2 100%);
+      color: #5b4636;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
     }
 
-    .card {
+    .container {
       width: 100%;
       max-width: 460px;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(10px);
-      border-radius: 24px;
-      padding: 28px 22px;
-      box-shadow: 0 12px 36px rgba(120, 90, 60, 0.14);
-      border: 1px solid rgba(179, 139, 89, 0.14);
-      text-align: center;
     }
 
-    .icon {
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(190, 150, 110, 0.18);
+      border-radius: 26px;
+      padding: 30px 22px;
+      box-shadow: 0 14px 38px rgba(122, 92, 64, 0.14);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(230, 194, 156, 0.25) 0%, rgba(230, 194, 156, 0) 70%);
+      border-radius: 50%;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(232, 208, 220, 0.24) 0%, rgba(232, 208, 220, 0) 70%);
+      border-radius: 50%;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ring {
       font-size: 34px;
       margin-bottom: 8px;
     }
@@ -43,18 +75,19 @@
     h1 {
       margin: 0;
       font-size: 30px;
-      color: #8a6442;
-      letter-spacing: 0.3px;
+      color: #8f6a4e;
+      letter-spacing: 0.4px;
+      font-family: Georgia, "Times New Roman", serif;
     }
 
     .subtitle {
-      margin: 10px 0 22px;
-      color: #7a6a5e;
+      margin: 12px 0 22px;
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.6;
+      color: #7d6757;
     }
 
-    .search-wrap {
+    .input-group {
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -63,17 +96,18 @@
     input {
       width: 100%;
       padding: 15px 16px;
-      border: 1px solid #e7d9cc;
+      border: 1px solid #eadacc;
       border-radius: 14px;
       font-size: 16px;
+      background: #fffdfa;
+      color: #5b4636;
       outline: none;
-      background: #fffdfb;
-      transition: 0.2s ease;
+      transition: all 0.2s ease;
     }
 
     input:focus {
-      border-color: #b38b59;
-      box-shadow: 0 0 0 4px rgba(179, 139, 89, 0.12);
+      border-color: #bd9264;
+      box-shadow: 0 0 0 4px rgba(189, 146, 100, 0.13);
     }
 
     button {
@@ -81,13 +115,13 @@
       padding: 15px 16px;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(135deg, #c8a06e, #a87948);
+      background: linear-gradient(135deg, #c8a077, #a97b52);
       color: white;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      box-shadow: 0 8px 18px rgba(179, 139, 89, 0.24);
+      box-shadow: 0 10px 22px rgba(169, 123, 82, 0.25);
     }
 
     button:hover {
@@ -103,82 +137,76 @@
       text-align: left;
     }
 
-    .message {
-      background: #fffaf5;
-      border: 1px solid #f0dfcf;
+    .result-box {
       border-radius: 16px;
       padding: 16px;
       line-height: 1.6;
-      color: #5a4a3f;
+      border: 1px solid #eadacc;
+      background: #fffaf6;
+      color: #5b4636;
     }
 
-    .success {
-      background: #fffaf5;
-      border: 1px solid #ead6c3;
+    .result-box.error {
+      background: #fff8f8;
+      border-color: #eed3d3;
+      color: #8a5555;
     }
 
-    .error {
-      background: #fff7f7;
-      border: 1px solid #f1d4d4;
-      color: #8a4f4f;
-    }
-
-    .loading {
+    .result-box.loading {
       text-align: center;
-      color: #8a6442;
+      color: #8f6a4e;
     }
 
     .result-title {
       font-size: 17px;
       font-weight: 700;
       margin-bottom: 8px;
-      color: #8a6442;
+      color: #8f6a4e;
     }
 
     .result-list {
-      margin: 12px 0 0;
-      padding: 0;
       list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
     }
 
     .result-item {
+      border: 1px solid #efdfd2;
       background: #fffdfb;
-      border: 1px solid #efdfd0;
       border-radius: 14px;
-      padding: 14px 14px;
+      padding: 14px;
       margin-bottom: 10px;
-      line-height: 1.5;
     }
 
     .guest-name {
       font-weight: 700;
-      color: #5d4636;
+      color: #5b4636;
       margin-bottom: 4px;
     }
 
-    .seat-line {
-      color: #6e5c50;
+    .table-line {
+      color: #715b4a;
       font-size: 15px;
     }
 
     .hint {
       margin-top: 10px;
       font-size: 13px;
-      color: #8a7a6d;
-      text-align: center;
+      color: #8d7a6a;
     }
 
     .footer-note {
       margin-top: 18px;
       font-size: 13px;
-      color: #9a8a7d;
+      color: #9b897b;
       text-align: center;
+      line-height: 1.5;
     }
 
     @media (max-width: 480px) {
       .card {
         padding: 24px 18px;
-        border-radius: 20px;
+        border-radius: 22px;
       }
 
       h1 {
@@ -188,42 +216,41 @@
       .subtitle {
         font-size: 14px;
       }
-
-      input,
-      button {
-        font-size: 16px;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">💍</div>
-    <h1>Find Your Seat</h1>
-    <p class="subtitle">
-      Welcome to our wedding dinner.<br />
-      Enter your name to check your table arrangement.
-    </p>
+  <div class="container">
+    <div class="card">
+      <div class="content">
+        <div class="ring">💍</div>
+        <h1>Find Your Seat</h1>
+        <p class="subtitle">
+          Welcome to our wedding celebration.<br />
+          Enter your name below to find your table.
+        </p>
 
-    <div class="search-wrap">
-      <input
-        type="text"
-        id="guestName"
-        placeholder="Enter your full name"
-        onkeydown="if(event.key === 'Enter') findSeat()"
-      />
-      <button onclick="findSeat()">Search</button>
-    </div>
+        <div class="input-group">
+          <input
+            type="text"
+            id="guestName"
+            placeholder="Enter your name"
+            onkeydown="if(event.key === 'Enter') findSeat()"
+          />
+          <button onclick="findSeat()">Search</button>
+        </div>
 
-    <div id="result"></div>
+        <div id="result"></div>
 
-    <div class="footer-note">
-      If you can’t find your name, please check with the reception team.
+        <div class="footer-note">
+          We’re so happy to celebrate this special day with you.
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxNdUzHxX_1k2iDz84401Nbg3mOf7dFVYC_MEUHuhrxJ5BhNzFS0vqOrjB6rjZlP2K9/exec";
+    const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
 
     function escapeHtml(str) {
       return String(str)
@@ -240,7 +267,7 @@
 
       if (!name) {
         resultDiv.innerHTML = `
-          <div class="message error">
+          <div class="result-box error">
             Please enter your name first.
           </div>
         `;
@@ -248,8 +275,8 @@
       }
 
       resultDiv.innerHTML = `
-        <div class="message loading">
-          Searching for your seat...
+        <div class="result-box loading">
+          Searching for your table...
         </div>
       `;
 
@@ -257,50 +284,46 @@
         const response = await fetch(`${API_URL}?name=${encodeURIComponent(name)}`);
         const data = await response.json();
 
-        if (!data.found) {
+        if (!data.found || !data.results || data.results.length === 0) {
           resultDiv.innerHTML = `
-            <div class="message error">
+            <div class="result-box error">
               Sorry, we couldn’t find a matching name.<br>
-              Please try a different spelling or check with the reception team.
+              Please try another spelling or check with the reception team.
             </div>
           `;
           return;
         }
 
-        if (data.multiple && Array.isArray(data.results)) {
-          const items = data.results.map((item, index) => `
-            <li class="result-item">
-              <div class="guest-name">${index + 1}) ${escapeHtml(item.guestName)}</div>
-              <div class="seat-line">
-                Table <strong>${escapeHtml(item.table)}</strong>
-                ${item.seat ? ` · Seat ${escapeHtml(item.seat)}` : ""}
-              </div>
-            </li>
-          `).join("");
-
+        if (data.results.length === 1) {
+          const guest = data.results[0];
           resultDiv.innerHTML = `
-            <div class="message success">
-              <div class="result-title">We found multiple matches</div>
-              <div>Please select the correct name from the list below:</div>
-              <ul class="result-list">${items}</ul>
-              <div class="hint">Try entering more of your full name for a more exact result.</div>
+            <div class="result-box">
+              <div class="result-title">Welcome, ${escapeHtml(guest.guestName)} ✨</div>
+              <div>Your table is <strong>Table ${escapeHtml(guest.table)}</strong></div>
             </div>
           `;
           return;
         }
+
+        const items = data.results.map((guest, index) => `
+          <li class="result-item">
+            <div class="guest-name">${index + 1}) ${escapeHtml(guest.guestName)}</div>
+            <div class="table-line">Table <strong>${escapeHtml(guest.table)}</strong></div>
+          </li>
+        `).join("");
 
         resultDiv.innerHTML = `
-          <div class="message success">
-            <div class="result-title">Welcome, ${escapeHtml(data.guestName)} ✨</div>
-            <div>Your table is <strong>Table ${escapeHtml(data.table)}</strong></div>
-            ${data.seat ? `<div>Your seat: <strong>${escapeHtml(data.seat)}</strong></div>` : ""}
+          <div class="result-box">
+            <div class="result-title">We found multiple matches</div>
+            <div>Please look for your name below:</div>
+            <ul class="result-list">${items}</ul>
+            <div class="hint">Tip: type more of your full name for a narrower result.</div>
           </div>
         `;
       } catch (error) {
         resultDiv.innerHTML = `
-          <div class="message error">
-            Something went wrong while searching.<br>
-            Please try again in a moment.
+          <div class="result-box error">
+            Something went wrong. Please try again shortly.
           </div>
         `;
         console.error(error);
