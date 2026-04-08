@@ -38,7 +38,7 @@
       background-position: center center;
       background-repeat: no-repeat;
       transform: scale(1.04);
-      filter: blur(5px);
+      filter: blur(7px);
       z-index: -3;
     }
 
@@ -66,7 +66,7 @@
       min-height: 100dvh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       padding: 20px 16px calc(40px + env(safe-area-inset-bottom, 0px));
     }
 
@@ -240,7 +240,7 @@
 
     @media (max-width: 480px) {
       .page {
-        min-height: auto;
+        min-height: 100dvh;
         padding: 14px 12px calc(28px + env(safe-area-inset-bottom, 0px));
       }
 
@@ -258,7 +258,7 @@
       }
 
       .bg-image {
-        filter: blur(4px);
+        filter: blur(6px);
         transform: scale(1.03);
       }
 
