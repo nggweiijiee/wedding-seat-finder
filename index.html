@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wedding Seat Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fdfaf6;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .card {
+      max-width: 420px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #b38b59;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Find Your Seat</h1>
+    <p>Welcome to our wedding dinner 💍</p>
+    <input type="text" id="guestName" placeholder="Enter your full name" />
+    <button onclick="findSeat()">Find My Seat</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbylJLhTHC0RoR0f7v2sNkzbPUwB_qb_yRXwpMjCD41P9zpCPf25GV1wBFLAhUzwtmWx/exec";
+
+    async function findSeat() {
+      const name = document.getElementById("guestName").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!name) {
+        resultDiv.innerHTML = "Please enter your name.";
+        return;
+      }
+
+      resultDiv.innerHTML = "Searching...";
+
+      try {
+        const response = await fetch(`${API_URL}?name=${encodeURIComponent(name)}`);
+        const data = await response.json();
+
+        if (data.found) {
+          resultDiv.innerHTML = `
+            <strong>Hi ${data.guestName}!</strong><br>
+            Your table is <strong>Table ${data.table}</strong><br>
+            ${data.seat ? `Seat: ${data.seat}` : ""}
+          `;
+        } else {
+          resultDiv.innerHTML = "Sorry, we couldn’t find your name. Please check with the reception team.";
+        }
+      } catch (error) {
+        resultDiv.innerHTML = "Something went wrong. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>
