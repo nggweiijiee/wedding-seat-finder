@@ -27,6 +27,7 @@
     body {
       position: relative;
       background: #f7efe8;
+      min-height: 100dvh;
     }
 
     .bg-image {
@@ -62,16 +63,17 @@
     }
 
     .page {
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 20px 16px 40px;
+      padding: 20px 16px calc(40px + env(safe-area-inset-bottom, 0px));
     }
 
     .container {
       width: 100%;
       max-width: 480px;
+      padding-bottom: 8px;
     }
 
     .card {
@@ -189,11 +191,6 @@
       color: #8a5555;
     }
 
-    .result-box.loading {
-      text-align: center;
-      color: #8f6a4e;
-    }
-
     .result-title {
       font-size: 17px;
       font-weight: 700;
@@ -243,7 +240,8 @@
 
     @media (max-width: 480px) {
       .page {
-        padding: 14px 12px 28px;
+        min-height: auto;
+        padding: 14px 12px calc(28px + env(safe-area-inset-bottom, 0px));
       }
 
       .card {
@@ -263,6 +261,10 @@
         filter: blur(4px);
         transform: scale(1.03);
       }
+
+      .result-item {
+        padding: 12px;
+      }
     }
   </style>
 </head>
@@ -275,7 +277,7 @@
     <div class="container">
       <div class="card">
         <div class="content">
-          <div class="ring">💍</div>
+          <div class="ring">o</div>
           <h1>Find Your Seat</h1>
           <p class="subtitle">
             Welcome to our wedding celebration.<br />
@@ -298,21 +300,24 @@
           <div id="result"></div>
 
           <div class="footer-note">
-            We’re so happy to celebrate this special day with you.
+            We're so happy to celebrate this special day with you.
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxNdUzHxX_1k2iDz84401Nbg3mOf7dFVYC_MEUHuhrxJ5BhNzFS0vqOrjB6rjZlP2K9/exec";
+    const GUEST_FILE = "WJL_Wedding_Guest.xlsx";
+    const SHEET_NAME = "Guests";
 
     const guestInput = document.getElementById("guestName");
     const resultDiv = document.getElementById("result");
     const searchStatus = document.getElementById("searchStatus");
 
-    let debounceTimer = null;
+    let guests = [];
+    let guestDataLoaded = false;
 
     function escapeHtml(str) {
       return String(str)
@@ -323,16 +328,81 @@
         .replace(/'/g, "&#039;");
     }
 
+    function normalizeName(name) {
+      return String(name || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function getMatchScore(query, guestName) {
+      const normalizedGuest = normalizeName(guestName);
+
+      if (!normalizedGuest) return 0;
+      if (normalizedGuest === query) return 100;
+      if (normalizedGuest.startsWith(query)) return 80;
+      if (normalizedGuest.includes(query)) return 60;
+
+      const guestWords = normalizedGuest.split(" ");
+      const queryWords = query.split(" ").filter(Boolean);
+
+      const allWordsMatchStart =
+        queryWords.length > 0 &&
+        queryWords.every((queryWord) =>
+          guestWords.some((guestWord) => guestWord.startsWith(queryWord))
+        );
+
+      if (allWordsMatchStart) return 50;
+
+      const anyWordContains = queryWords.some((queryWord) =>
+        guestWords.some((guestWord) => guestWord.includes(queryWord))
+      );
+
+      if (anyWordContains) return 30;
+
+      return 0;
+    }
+
+    function findMatches(name) {
+      const query = normalizeName(name);
+
+      if (!query) {
+        return [];
+      }
+
+      return guests
+        .map((guest) => ({
+          guestName: String(guest.guestName || "").trim(),
+          table: String(guest.table || "").trim(),
+          score: getMatchScore(query, guest.guestName)
+        }))
+        .filter((guest) => guest.guestName && guest.score > 0)
+        .sort((a, b) => b.score - a.score || a.guestName.localeCompare(b.guestName));
+    }
+
     function renderIdle() {
       searchStatus.textContent = "";
       resultDiv.innerHTML = "";
     }
 
-    function renderLoading() {
-      searchStatus.textContent = "Searching...";
+    function renderLoadingData() {
+      searchStatus.textContent = "Loading guest list...";
       resultDiv.innerHTML = `
-        <div class="result-box loading">
-          Searching for your table...
+        <div class="result-box">
+          Loading guest list...
+        </div>
+      `;
+    }
+
+    function renderMissingData() {
+      searchStatus.textContent = "";
+      resultDiv.innerHTML = `
+        <div class="result-box error">
+          We couldn't load the guest list from <strong>${escapeHtml(GUEST_FILE)}</strong>.<br>
+          Please keep the Excel file in the same folder and open this page through a hosted site or local web server.
         </div>
       `;
     }
@@ -341,7 +411,7 @@
       searchStatus.textContent = "";
       resultDiv.innerHTML = `
         <div class="result-box error">
-          Sorry, we couldn’t find a matching name.<br>
+          Sorry, we couldn't find a matching name.<br>
           Please try another spelling or check with the reception team.
         </div>
       `;
@@ -360,7 +430,7 @@
       searchStatus.textContent = "";
       resultDiv.innerHTML = `
         <div class="result-box">
-          <div class="result-title">Welcome, ${escapeHtml(guest.guestName)} ✨</div>
+          <div class="result-title">Welcome, ${escapeHtml(guest.guestName)}</div>
           <div>Your table is <strong>Table ${escapeHtml(guest.table)}</strong></div>
         </div>
       `;
@@ -386,57 +456,98 @@
       `;
     }
 
-    async function searchGuest(name) {
-      const trimmed = name.trim();
+    function searchGuest(name) {
+      const trimmed = String(name || "").trim();
+
+      if (!guestDataLoaded) {
+        renderLoadingData();
+        return;
+      }
 
       if (!trimmed) {
         renderIdle();
         return;
       }
 
-      renderLoading();
+      if (!Array.isArray(guests) || guests.length === 0) {
+        renderMissingData();
+        return;
+      }
 
       try {
-        const response = await fetch(`${API_URL}?name=${encodeURIComponent(trimmed)}`);
-        const data = await response.json();
+        const matches = findMatches(trimmed);
 
-        if (guestInput.value.trim() !== trimmed) {
-          return;
-        }
-
-        if (!data.found || !data.results || data.results.length === 0) {
+        if (matches.length === 0) {
           renderNoResult();
           return;
         }
 
-        if (data.results.length === 1) {
-          renderSingle(data.results[0]);
+        if (matches.length === 1) {
+          renderSingle(matches[0]);
           return;
         }
 
-        renderMultiple(data.results);
+        renderMultiple(matches);
       } catch (error) {
-        if (guestInput.value.trim() === trimmed) {
-          renderError();
+        renderError();
+        console.error(error);
+      }
+    }
+
+    async function loadGuestData() {
+      renderLoadingData();
+
+      try {
+        const response = await fetch(GUEST_FILE);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${GUEST_FILE}: ${response.status}`);
         }
+
+        const fileData = await response.arrayBuffer();
+        const workbook = XLSX.read(fileData, { type: "array" });
+        const worksheet =
+          workbook.Sheets[SHEET_NAME] ||
+          workbook.Sheets[workbook.SheetNames[0]];
+
+        if (!worksheet) {
+          throw new Error("No worksheet found in workbook");
+        }
+
+        const rows = XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          defval: ""
+        });
+
+        guests = rows
+          .slice(1)
+          .map((row) => ({
+            guestName: String(row[0] || "").trim(),
+            table: String(row[1] || "").trim()
+          }))
+          .filter((guest) => guest.guestName);
+
+        guestDataLoaded = true;
+
+        if (guestInput.value.trim()) {
+          searchGuest(guestInput.value);
+          return;
+        }
+
+        renderIdle();
+      } catch (error) {
+        guests = [];
+        guestDataLoaded = true;
+        renderMissingData();
         console.error(error);
       }
     }
 
     guestInput.addEventListener("input", function () {
-      const value = this.value;
-
-      clearTimeout(debounceTimer);
-
-      if (!value.trim()) {
-        renderIdle();
-        return;
-      }
-
-      debounceTimer = setTimeout(() => {
-        searchGuest(value);
-      }, 250);
+      searchGuest(this.value);
     });
+
+    loadGuestData();
   </script>
 </body>
 </html>
